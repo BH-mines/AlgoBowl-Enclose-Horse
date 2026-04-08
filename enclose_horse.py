@@ -83,8 +83,6 @@ def place_wall(R, C, tiles, walls, wall_budget, portals, horse_pos, preplaced_wa
                 return tiles, wall_count
     return None, None
 
-    
-
 
 if __name__ == "__main__":
     
@@ -101,7 +99,7 @@ if __name__ == "__main__":
     print("Path:", bfs_run)
 
     newTiles, wall_count = place_wall(R, C, tiles, walls, wall_budget, portals, horse_pos, preplaced_walls)
-    print(newTiles)
-    print(wall_count)
+    print("Tiles with new walls:", newTiles)
+    print("Current total wall count:", wall_count)
 
     

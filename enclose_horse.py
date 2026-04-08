@@ -65,24 +65,38 @@ def bfs_find_path(R, C, tiles, walls, portals, horse_pos, preplaced_walls=set())
 
     return None
 
-#Algorithm to block path of horse
+def bfs_find_path_no_portals(R, C, tiles, walls, horse_pos, preplaced_walls=set()):
+    return bfs_find_path(R, C, tiles, walls, {}, horse_pos, preplaced_walls)
+
+# Algorithm to block path of horse
 def place_wall(R, C, tiles, walls, wall_budget, portals, horse_pos, preplaced_walls):
-    wall_count = len(preplaced_walls) #Start the wall count with only preplaced walls
-    path = bfs_find_path(R, C, tiles, walls, portals, horse_pos, preplaced_walls) #store current path out
-    if path != None: 
-        while wall_count < wall_budget:
-            index = 1 #Start at index 1 as index 0 is the horse itself
-            while tiles[path[index][0]][path[index][1]] != '.':
-                index += 1
-                if index >= len(path):
-                    return
-            r, c = path[index] #Place wall on first available in path
-            tiles[r][c] = 'W'
-            walls.add((r, c))
-            wall_count += 1
-            path = bfs_find_path(R, C, tiles, walls, portals, horse_pos, preplaced_walls)
-            if path == None: #If path is now blocked, output new configuration and number of walls used
-                return tiles, wall_count
+    wall_count = len(walls) # Start the wall count with all walls.
+
+    # Try non-portal path first, fall back to portal path if needed, that way we ignore portals unless we absolutely have to use them.
+    path = bfs_find_path_no_portals(R, C, tiles, walls, horse_pos, preplaced_walls)
+    if path is None:
+        path = bfs_find_path(R, C, tiles, walls, portals, horse_pos, preplaced_walls)
+       
+    while path is not None and wall_count < wall_budget:
+        # if path goes through a portal, only consider up to the portal entrance
+        trimmed_path = []
+        for pos in path:
+            trimmed_path.append(pos)
+            if pos in portals and pos != path[0]:
+                break
+        index = len(trimmed_path) // 2
+        while tiles[trimmed_path[index][0]][trimmed_path[index][1]] != '.':
+            index += 1
+            if index >= len(path):
+                return None, None
+        r, c = trimmed_path[index] # Place wall on first available in path
+        tiles[r][c] = 'W'
+        walls.add((r, c))
+        wall_count += 1
+        path = bfs_find_path(R, C, tiles, walls, portals, horse_pos, preplaced_walls)
+    if path == None: # If path is now blocked, output new configuration and number of walls used
+        return tiles, wall_count
+        
     return None, None
 
 
@@ -125,10 +139,36 @@ def sum_score(R, C, tiles, walls, portals, horse_pos):
 
     return score
 
+def initial_enclosure(R, C, tiles, portals, horse_pos, preplaced_walls, wall_budget):
+    walls = set()
 
+    # replace preplaced walls with grass so BFS treats them as open
+    for r, c in preplaced_walls:
+        tiles[r][c] = '.'
+
+    newTiles, wall_count = place_wall(R, C, tiles, walls, wall_budget, portals, horse_pos, preplaced_walls)
+
+    if newTiles is None:
+        return tiles, preplaced_walls
+
+    return newTiles, walls
 
 if __name__ == "__main__":
     
+    wall_budget, R, C, tiles, horse_pos, preplaced_walls, portals = parse_input()
+
+    newTiles, walls = initial_enclosure(R, C, tiles, portals, horse_pos, preplaced_walls, wall_budget)
+
+    score = sum_score(R, C, newTiles, walls, portals, horse_pos)
+    print("Score:", score)
+    print("Grid:")
+
+    # Build the output, not yet creating an output file for the output!
+    for r, row in enumerate(newTiles):
+        print(''.join(row))
+
+    # Test code
+    '''
     wall_budget, R, C, tiles, horse_pos, preplaced_walls, portals = parse_input()
     # Use existing W tiles as blocked walls for testing
     walls = set(preplaced_walls)
@@ -142,10 +182,17 @@ if __name__ == "__main__":
     print("Path:", bfs_run)
 
     newTiles, wall_count = place_wall(R, C, tiles, walls, wall_budget, portals, horse_pos, preplaced_walls)
+
+    # Safe guard.
+    if newTiles is None:
+        print("Could not enclose horse within wall budget")
+        sys.exit(1)
+
     print("Tiles with new walls:", newTiles)
     print("Current total wall count:", wall_count)
 
     score = sum_score(R, C, newTiles, walls, portals, horse_pos)
     print("Score:", score)
+    '''
 
     

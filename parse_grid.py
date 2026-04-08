@@ -1,3 +1,5 @@
+
+# .py to test the parsing of the grid 
 def parse_input():
     wall_budget = int(input()) # Grab wall budget
     R, C = map(int, input().split()) # Grab row and cols

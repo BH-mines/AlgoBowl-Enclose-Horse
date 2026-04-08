@@ -76,12 +76,55 @@ def place_wall(R, C, tiles, walls, wall_budget, portals, horse_pos, preplaced_wa
                 index += 1
                 if index >= len(path):
                     return
-            tiles[path[index][0]][path[index][1]] = 'W' #Place wall on first availabel in path
+            r, c = path[index] #Place wall on first available in path
+            tiles[r][c] = 'W'
+            walls.add((r, c))
             wall_count += 1
             path = bfs_find_path(R, C, tiles, walls, portals, horse_pos, preplaced_walls)
             if path == None: #If path is now blocked, output new configuration and number of walls used
                 return tiles, wall_count
     return None, None
+
+
+def sum_score(R, C, tiles, walls, portals, horse_pos):
+    queue = deque([horse_pos])
+    visited = {horse_pos}
+    score = 0
+
+    while queue:
+        r, c = queue.popleft()
+        tile = tiles[r][c]
+
+        #Score values as stated in assignment
+        if tile == '.' or tile == 'H' or tile == 'p':
+            score += 1
+        elif tile == 'a':
+            score += 11
+        elif tile == 'b':
+            score -= 4
+        elif tile == 'c':
+            score += 4
+
+        # portal jump
+        if (r, c) in portals:
+            desination = portals[(r, c)]
+            if desination not in visited and desination not in walls:
+                pr, pc = desination
+                if tiles[pr][pc] != '#':
+                    visited.add(desination)
+                    queue.append(desination)
+
+        # regular 4-direction moves
+        for dr, dc in [(-1,0),(1,0),(0,-1),(0,1)]:
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < R and 0 <= nc < C:
+                if (nr, nc) not in visited and (nr, nc) not in walls:
+                    if tiles[nr][nc] != '#':
+                        visited.add((nr, nc))
+                        queue.append((nr, nc))
+
+    return score
+
 
 
 if __name__ == "__main__":
@@ -101,5 +144,8 @@ if __name__ == "__main__":
     newTiles, wall_count = place_wall(R, C, tiles, walls, wall_budget, portals, horse_pos, preplaced_walls)
     print("Tiles with new walls:", newTiles)
     print("Current total wall count:", wall_count)
+
+    score = sum_score(R, C, newTiles, walls, portals, horse_pos)
+    print("Score:", score)
 
     

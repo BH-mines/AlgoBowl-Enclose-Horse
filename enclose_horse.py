@@ -65,6 +65,26 @@ def bfs_find_path(R, C, tiles, walls, portals, horse_pos, preplaced_walls=set())
 
     return None
 
+#Algorithm to block path of horse
+def place_wall(R, C, tiles, walls, wall_budget, portals, horse_pos, preplaced_walls):
+    wall_count = len(preplaced_walls) #Start the wall count with only preplaced walls
+    path = bfs_find_path(R, C, tiles, walls, portals, horse_pos, preplaced_walls) #store current path out
+    if path != None: 
+        while wall_count < wall_budget:
+            index = 1 #Start at index 1 as index 0 is the horse itself
+            while tiles[path[index][0]][path[index][1]] != '.':
+                index += 1
+                if index >= len(path):
+                    return
+            tiles[path[index][0]][path[index][1]] = 'W' #Place wall on first availabel in path
+            wall_count += 1
+            path = bfs_find_path(R, C, tiles, walls, portals, horse_pos, preplaced_walls)
+            if path == None: #If path is now blocked, output new configuration and number of walls used
+                return tiles, wall_count
+    return None, None
+
+    
+
 
 if __name__ == "__main__":
     
@@ -79,4 +99,9 @@ if __name__ == "__main__":
     print("Preplaced walls:", preplaced_walls)
     print("Portals:", portals)
     print("Path:", bfs_run)
+
+    newTiles, wall_count = place_wall(R, C, tiles, walls, wall_budget, portals, horse_pos, preplaced_walls)
+    print(newTiles)
+    print(wall_count)
+
     

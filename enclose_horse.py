@@ -1,6 +1,7 @@
 from collections import deque
 from operator import index
 import sys
+import copy
 
 def parse_input():
     wall_budget = int(input()) # Grab wall budget
@@ -153,16 +154,50 @@ def initial_enclosure(R, C, tiles, portals, horse_pos, preplaced_walls, wall_bud
 
     return newTiles, walls
 
+# using the copy import so we work on a copy of the tiles each iteration.
+def main_loop(R, C, tiles, portals, horse_pos, preplaced_walls, wall_budget, walls):
+    best_walls = set(walls)
+    best_score = sum_score(R, C, tiles, best_walls, portals, horse_pos)
+    best_tiles = copy.deepcopy(tiles)
+
+    improved = True
+    while improved:
+        improved = False
+
+        # Sort walls based on proximity to the horse
+        sorted_walls = []
+        for wall in best_walls:
+            dist = abs(wall[0] - horse_pos[0]) + abs(wall[1] - horse_pos[1]) # Manhattan distance to horse
+            sorted_walls.append((dist, wall))
+        sorted_walls.sort()
+
+        for dist, wall in sorted_walls:
+            test_tiles = copy.deepcopy(best_tiles)
+            test_walls = best_walls - {wall}
+            test_tiles[wall[0]][wall[1]] = '.'
+
+            newTiles, wall_count = place_wall(R, C, test_tiles, test_walls, wall_budget, portals, horse_pos, preplaced_walls)
+
+            if newTiles is not None:
+                new_score = sum_score(R, C, newTiles, test_walls, portals, horse_pos)
+                if new_score > best_score:
+                    best_walls = set(test_walls)
+                    best_score = new_score
+                    best_tiles = copy.deepcopy(newTiles)
+                    improved = True
+                    break
+
+    return best_tiles, best_walls, best_score
+
 if __name__ == "__main__":
     
     wall_budget, R, C, tiles, horse_pos, preplaced_walls, portals = parse_input()
 
     newTiles, walls = initial_enclosure(R, C, tiles, portals, horse_pos, preplaced_walls, wall_budget)
 
-    score = sum_score(R, C, newTiles, walls, portals, horse_pos)
-    print(score)
+    newTiles, walls, score = main_loop(R, C, newTiles, portals, horse_pos, preplaced_walls, wall_budget, walls)
 
-    # Build the output, not yet creating an output file for the output!
+    print(score)
     for r, row in enumerate(newTiles):
         print(''.join(row))
 

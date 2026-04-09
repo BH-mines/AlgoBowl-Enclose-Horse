@@ -2,7 +2,7 @@ import subprocess
 import glob
 
 # Get all input files from folder
-input_files = sorted(glob.glob("Benny/input_group*.txt"))
+input_files = sorted(glob.glob("Dillon/input_group*.txt"))
 
 for infile in input_files:
     # Create matching output filename

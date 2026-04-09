@@ -1,4 +1,5 @@
 from collections import deque
+from operator import index
 import sys
 
 def parse_input():
@@ -85,10 +86,10 @@ def place_wall(R, C, tiles, walls, wall_budget, portals, horse_pos, preplaced_wa
             if pos in portals and pos != path[0]:
                 break
         index = len(trimmed_path) // 2
-        while tiles[trimmed_path[index][0]][trimmed_path[index][1]] != '.':
-            index += 1
-            if index >= len(path):
-                return None, None
+        while index < len(trimmed_path) and tiles[trimmed_path[index][0]][trimmed_path[index][1]] != '.':
+             index += 1
+        if index >= len(trimmed_path):
+            return None, None
         r, c = trimmed_path[index] # Place wall on first available in path
         tiles[r][c] = 'W'
         walls.add((r, c))
@@ -143,8 +144,7 @@ def initial_enclosure(R, C, tiles, portals, horse_pos, preplaced_walls, wall_bud
     walls = set()
 
     # replace preplaced walls with grass so BFS treats them as open
-    for r, c in preplaced_walls:
-        tiles[r][c] = '.'
+    walls = set(preplaced_walls)
 
     newTiles, wall_count = place_wall(R, C, tiles, walls, wall_budget, portals, horse_pos, preplaced_walls)
 

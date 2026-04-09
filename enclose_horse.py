@@ -160,8 +160,7 @@ if __name__ == "__main__":
     newTiles, walls = initial_enclosure(R, C, tiles, portals, horse_pos, preplaced_walls, wall_budget)
 
     score = sum_score(R, C, newTiles, walls, portals, horse_pos)
-    print("Score:", score)
-    print("Grid:")
+    print(score)
 
     # Build the output, not yet creating an output file for the output!
     for r, row in enumerate(newTiles):

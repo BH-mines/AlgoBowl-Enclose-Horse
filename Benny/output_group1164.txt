@@ -1,10 +1,10 @@
-58
+64
 #######.#######
-#.a#.a.b.b.#bb#
-#p.#WWWWWW.#bp#
+#.a#.aWbWbW#bb#
+#p.#...W.W.#bp#
 ####.......####
-#pb....H....cp#
+#pb....H...Wcp#
 ####.......####
-bbb#.b.b.aW.aaa
-bbb#...W...#aaa
-bbb####.####aaa
+bbb#.b.b.a.Waaa
+bbb#.......#aaa
+bbb####W####aaa

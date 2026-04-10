@@ -1,12 +1,12 @@
--47
+-31
 ###########
 #ab.bab#ba#
 #b##bbb##b#
-#####.###.#
+#####W###.#
 #bb#bbb#bb#
-#ab.bHb.ba#
+#abWbHbWba#
 #bb#bbb#bb#
-#.###.#####
+#.###W#####
 #b##bbb##b#
 #ab#bab.ba#
 ###########
